@@ -3,7 +3,10 @@
   "name": "Trainer Rematch",
   "version": "0.5.4",
   "api": 2,
-  "games": ["gen1", "gen2"],
+  "games": [
+    "gen1",
+    "gen2"
+  ],
   "entry": "main.lua",
   "profile": "content",
   "game_version": "0.0.0-dev || >=0.1.17 <1.0.0",
@@ -18,5 +21,5 @@
   "incompatible": [],
   "experimental": false,
   "description": "Talk to beaten trainers for a rematch in Gen 1 (Red/Blue/Yellow) and Gen 2 (Gold/Silver/Crystal). Rematch money and XP are configurable percentages of the usual amounts (MODS menu, 0-100% in 10% steps), every class opens with a line in its own voice, and a much stronger rematch team draws a second warning prompt.",
-  "github": "ShaneMcGovernIE/trainer_rematch"
+  "github": "twgrodd/G1R-Deluxe_Gen1_mod_fork_trainer-Rematch-Roddsoftver"
 }
