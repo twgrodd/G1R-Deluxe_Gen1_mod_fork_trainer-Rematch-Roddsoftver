@@ -483,6 +483,19 @@ local TALK_ONLY_OPS = {
 local CHECK_OPS = { checkevent = true, checkflag = true }
 local BRANCH_OPS = { iftrue = true, iffalse = true }
 local JUMP_OPS = { jump = true, sjump = true, farsjump = true }
+-- Only operations that definitely mutate progression should reserve the
+-- defeated trainer's vanilla talk. Gen 2's normal trainer machinery contains
+-- many non-dialogue opcodes (trainerflagaction, scripttalkafter,
+-- checkjustbattled, etc.); treating every unknown opcode as a story side
+-- effect blocks ordinary rematches.
+local STORY_SIDE_EFFECT_OPS = {
+  setevent = true, clearevent = true, setflag = true, clearflag = true,
+  giveitem = true, takeitem = true, verbosegiveitem = true,
+  givemoney = true, takemoney = true, givecoins = true, takecoins = true,
+  givepoke = true, giveegg = true,
+  appear = true, disappear = true, changeblock = true,
+  warp = true, warpfacing = true, moveobject = true,
+}
 local TALK_DEPTH_LIMIT = 8
 
 local function talkStillHandsOver(ops, allScripts, ctx, depth)
@@ -512,7 +525,7 @@ local function talkStillHandsOver(ops, allScripts, ctx, depth)
       elseif JUMP_OPS[op] then
         local target = type(cmd.script) == "string" and allScripts[cmd.script] or cmd.script
         return talkStillHandsOver(target, allScripts, ctx, depth + 1)
-      elseif not TALK_ONLY_OPS[op] then
+      elseif STORY_SIDE_EFFECT_OPS[op] then
         return true
       end
     end
