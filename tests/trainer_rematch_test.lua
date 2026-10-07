@@ -922,7 +922,34 @@ overworldStub.talkTo(rocketOverworld(true), rocketNpc)
 T.eq(#pushed, 1, "password Rocket may rematch after password event is set")
 T.eq(calls.vanillaTalk, 0, "finished password dialogue no longer blocks rematches")
 
--- H: Gen 1 Fighting Dojo Master keeps his reward interaction until the
+-- H: ordinary Gen 2 trainer scripts may contain trainer VM machinery that
+-- is not story progression. Unknown/non-mutating trainer opcodes must not
+-- reserve the defeated trainer's talk, while a real setevent still must.
+do
+  local plainScripts = {
+    PlainAfterBattle = {
+      { op = "trainerflagaction", action = 2 },
+      { op = "checkjustbattled" },
+      { op = "trainertext", index = 1 },
+      { op = "scripttalkafter" },
+      { op = "end" },
+    },
+    StoryAfterBattle = {
+      { op = "writetext", text = "Password..." },
+      { op = "setevent", event = 1701 },
+      { op = "end" },
+    },
+  }
+  local plainWorld = { scripts = plainScripts, game = { save = {} } }
+  T.eq(mod.exports.trainerStillHasStoryTalk(
+    plainWorld, plainWorld.game, { scriptKey = "PlainAfterBattle" }), false,
+    "ordinary Gen 2 trainer VM opcodes do not suppress rematches")
+  T.eq(mod.exports.trainerStillHasStoryTalk(
+    plainWorld, plainWorld.game, { scriptKey = "StoryAfterBattle" }), true,
+    "real Gen 2 progression side effects still suppress rematches")
+end
+
+-- I: Gen 1 Fighting Dojo Master keeps his reward interaction until the
 -- player has actually chosen Hitmonlee/Hitmonchan.  The battle win alone is
 -- not enough to make his talk safe for rematches.
 local dojoNpc = {
