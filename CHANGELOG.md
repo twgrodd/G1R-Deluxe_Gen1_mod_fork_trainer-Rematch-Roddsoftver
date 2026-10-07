@@ -2,6 +2,20 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.5.7] - 2026-10-07
+
+### Fixed
+
+- **Gen 2 story-critical trainer dialogue**: defeated trainers whose post-battle
+  conversation still performs a progression side effect now keep their vanilla
+  dialogue before the rematch prompt can appear.
+- **Mahogany Team Rocket passwords**: the Rocket grunts that reveal the
+  passwords in the Team Rocket HQ can now complete their password dialogue
+  normally after being defeated. Once the relevant story event is set, later
+  conversations can offer a rematch as usual.
+- Added regression coverage for the password-grunt flow so rematches cannot
+  replace the progression dialogue again.
+
 ## [0.5.4] - 2026-09-12
 
 ### Fixed
