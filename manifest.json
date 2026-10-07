@@ -1,7 +1,7 @@
 {
-  "id": "trainer_rematch",
+  "id": "trainer-rematch-roddsoft",
   "name": "Trainer Rematch RoddSoft",
-  "version": "0.5.8",
+  "version": "0.5.9",
   "api": 2,
   "games": [
     "gen1",
