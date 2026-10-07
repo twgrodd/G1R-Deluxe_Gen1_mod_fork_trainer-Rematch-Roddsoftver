@@ -2,6 +2,22 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.5.8] - 2026-10-07
+
+### Fixed
+
+- **Gen 1 post-battle story rewards**: rematches now defer to known
+  progression-critical defeated-trainer talks until their completion flag is
+  set, matching the safety rule already used for Gen 2 story interactions.
+- **Fighting Dojo Karate Master**: after defeating him, his vanilla reward
+  interaction remains available until the player has actually chosen
+  Hitmonlee or Hitmonchan. After the reward is claimed, he can offer rematches
+  normally.
+- Audited Gen 1 scripted trainer progression. The Rocket Hideout Lift Key is
+  handled by Gen1Recomp's battle-completion callback on supported engine
+  versions; Route 24's Nugget is awarded before its Rocket battle; these flows
+  therefore do not require a second-talk rematch gate.
+
 ## [0.5.7] - 2026-10-07
 
 ### Fixed
