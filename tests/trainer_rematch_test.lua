@@ -922,7 +922,48 @@ overworldStub.talkTo(rocketOverworld(true), rocketNpc)
 T.eq(#pushed, 1, "password Rocket may rematch after password event is set")
 T.eq(calls.vanillaTalk, 0, "finished password dialogue no longer blocks rematches")
 
--- H: the pieces the gate is built from
+-- H: Gen 1 Fighting Dojo Master keeps his reward interaction until the
+-- player has actually chosen Hitmonlee/Hitmonchan.  The battle win alone is
+-- not enough to make his talk safe for rematches.
+local dojoNpc = {
+  def = {
+    name = "FIGHTINGDOJO_KARATE_MASTER",
+    trainerClass = "BLACKBELT",
+    trainerParty = 9,
+    index = 1,
+  },
+  frozen = false,
+  facePlayer = function() end,
+}
+local function dojoOverworld(rewardTaken)
+  return {
+    game = { save = {
+      defeatedTrainers = { FIGHTING_DOJO_obj_1 = true },
+      flags = { EVENT_DEFEATED_FIGHTING_DOJO = rewardTaken or nil },
+      party = { { level = 50 } },
+    } },
+    save = nil,
+    map = { id = "FIGHTING_DOJO", def = { label = "FightingDojo" } },
+    player = { party = { { level = 50 } } },
+    trainerDefeated = function() return true end,
+    startTrainerBattle = function() return true end,
+  }
+end
+dojoNpc.id = "FIGHTING_DOJO_obj_1"
+
+calls.vanillaTalk = 0
+pushed = {}
+overworldStub.talkTo(dojoOverworld(false), dojoNpc)
+T.eq(#pushed, 0, "Dojo Master keeps vanilla reward talk before a prize Pokemon is chosen")
+T.eq(calls.vanillaTalk, 1, "Dojo reward interaction is not replaced by rematch prompt")
+
+calls.vanillaTalk = 0
+pushed = {}
+overworldStub.talkTo(dojoOverworld(true), dojoNpc)
+T.eq(#pushed, 1, "Dojo Master may rematch after the reward is claimed")
+T.eq(calls.vanillaTalk, 0, "completed Dojo reward no longer blocks rematches")
+
+-- I: the pieces the gate is built from
 T.eq(ex.resolveLeader("OPP_WHITNEY"), ex.resolveLeader("WHITNEY"),
   "resolveLeader normalises the OPP_ prefix")
 T.eq(ex.resolveLeader("OPP_FIX_YOUNGSTER"), nil, "non-leader classes resolve to nil")
