@@ -560,6 +560,26 @@ local function talkContext(self, game)
   }
 end
 
+-- Gen 1's hand-ported story talks are Lua functions, so they cannot be
+-- safely walked like Gen 2 command scripts.  Keep a small, explicit list of
+-- defeated trainers whose *later talk* still owns progression, and release the
+-- rematch gate only after the engine's completion flag says the reward is done.
+-- This is deliberately data-driven so future parity cases can be added without
+-- weakening ordinary Gen 1 trainer rematches.
+local GEN1_STORY_TALK_GATES = {
+  FIGHTINGDOJO_KARATE_MASTER = "EVENT_DEFEATED_FIGHTING_DOJO",
+}
+
+local function gen1TrainerStillHasStoryTalk(self, game, d)
+  local name = d and d.name
+  local completionFlag = name and GEN1_STORY_TALK_GATES[name]
+  if not completionFlag then return false end
+  local save = (self and self.game and self.game.save) or (self and self.save)
+      or (game and game.save)
+  local flags = save and save.flags
+  return not (type(flags) == "table" and flags[completionFlag] == true)
+end
+
 -- Any beaten Gen 2 trainer whose current talk path still performs a
 -- story-side effect keeps the vanilla conversation first.  This covers Gym
 -- Leader badge/TM handovers as well as field trainers that set progression
@@ -793,6 +813,7 @@ return function(mod)
   mod.exports.badgeOwned = badgeOwned
   mod.exports.talkStillHandsOver = talkStillHandsOver
   mod.exports.trainerStillHasStoryTalk = trainerStillHasStoryTalk
+  mod.exports.gen1TrainerStillHasStoryTalk = gen1TrainerStillHasStoryTalk
 
   -- rematch earnings: a percentage of the usual battle money and
   -- experience, stepped in 10% intervals.  Money defaults to 0% (the
@@ -936,7 +957,8 @@ return function(mod)
           -- their event/flag side effects are satisfied, the same trainer can
           -- offer rematches normally.  The leader check also covers badge
           -- ownership when the engine cannot expose enough script state.
-          if not trainerStillHasStoryTalk(self, activeGame, d)
+          if not gen1TrainerStillHasStoryTalk(self, activeGame, d)
+              and not trainerStillHasStoryTalk(self, activeGame, d)
               and not leaderStillHandingOver(self, activeGame, info.classId, d)
               and (not scripted or hasDedicatedRematch or d.scriptKey or self.startTrainerScript) then
             return offerRematch(self, npc, activeGame, deps)
