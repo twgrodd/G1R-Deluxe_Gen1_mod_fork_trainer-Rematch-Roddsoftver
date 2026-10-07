@@ -879,7 +879,50 @@ overworldStub.talkTo(gymOverworld({ scripts = WHITNEY_SCRIPTS,
   events = { [1301] = true } }), lassNpc)
 T.eq(#pushed, 1, "a beaten gym trainer still gets the rematch prompt")
 
--- G: the pieces the gate is built from
+-- G: story-critical field trainers keep their post-battle talk until its
+-- progression event has been set.  This is the Mahogany Rocket password shape:
+-- defeated -> vanilla talk sets the password event -> later talks may rematch.
+local ROCKET_PASSWORD_SCRIPTS = {
+  RocketPasswordGrunt = {
+    { op = "checkevent", event = 1701 },
+    { op = "iftrue", script = "RocketPasswordKnown" },
+    { op = "writetext", text = "The password is..." },
+    { op = "setevent", event = 1701 },
+    { op = "end" },
+  },
+  RocketPasswordKnown = {
+    { op = "writetext", text = "You already know it." },
+    { op = "end" },
+  },
+}
+local rocketNpc = {
+  def = {
+    trainer = { class = 25, member = 1, event = 1302 },
+    scriptKey = "RocketPasswordGrunt", index = 3,
+  },
+  frozen = false,
+  facePlayer = function() end,
+}
+local function rocketOverworld(passwordKnown)
+  local ow = gymOverworld({ scripts = ROCKET_PASSWORD_SCRIPTS,
+    events = { [1302] = true, [1701] = passwordKnown or nil } })
+  ow.map = { id = "TEAM_ROCKET_BASE_B2F", def = { label = "TeamRocketBaseB2F" } }
+  return ow
+end
+
+calls.vanillaTalk = 0
+pushed = {}
+overworldStub.talkTo(rocketOverworld(false), rocketNpc)
+T.eq(#pushed, 0, "password Rocket keeps vanilla talk before password is learned")
+T.eq(calls.vanillaTalk, 1, "password dialogue is not replaced by rematch prompt")
+
+calls.vanillaTalk = 0
+pushed = {}
+overworldStub.talkTo(rocketOverworld(true), rocketNpc)
+T.eq(#pushed, 1, "password Rocket may rematch after password event is set")
+T.eq(calls.vanillaTalk, 0, "finished password dialogue no longer blocks rematches")
+
+-- H: the pieces the gate is built from
 T.eq(ex.resolveLeader("OPP_WHITNEY"), ex.resolveLeader("WHITNEY"),
   "resolveLeader normalises the OPP_ prefix")
 T.eq(ex.resolveLeader("OPP_FIX_YOUNGSTER"), nil, "non-leader classes resolve to nil")
