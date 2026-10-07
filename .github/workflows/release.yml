@@ -129,7 +129,7 @@ jobs:
       - name: Build the mod .zip
         env:
           VERSION: ${{ steps.ver.outputs.version }}
-          MOD_ID: "trainer_rematch_roddsoft"
+          MOD_ID: "trainer-rematch-roddsoft"
         run: |
           set -euo pipefail
           staging="$RUNNER_TEMP/pkg"
@@ -177,7 +177,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           VERSION: ${{ steps.ver.outputs.version }}
           TAG: ${{ steps.ver.outputs.tag }}
-          MOD_ID: "trainer_rematch_roddsoft"
+          MOD_ID: "trainer-rematch-roddsoft"
         run: |
           set -euo pipefail
 
