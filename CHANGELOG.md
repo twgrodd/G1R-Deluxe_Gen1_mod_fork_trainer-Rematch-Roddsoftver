@@ -2,6 +2,21 @@
 
 All notable changes to this project are documented in this file.
 
+## [0.5.9] - 2026-10-07
+
+### Changed
+
+- **RoddSoft mod identity**: the manifest ID is now
+  `trainer-rematch-roddsoft`, matching the fork's display name **Trainer
+  Rematch RoddSoft** instead of retaining the original `trainer_rematch`
+  identity.
+- Release packages are now named
+  `trainer-rematch-roddsoft-<version>.zip`.
+- **Manual reinstall required when upgrading from older versions**: remove the
+  old `trainer_rematch` installation before importing this release. Because
+  the manifest ID changed, leaving the old copy installed can make the mod
+  manager treat the old and new builds as separate mods.
+
 ## [0.5.8] - 2026-10-07
 
 ### Fixed
