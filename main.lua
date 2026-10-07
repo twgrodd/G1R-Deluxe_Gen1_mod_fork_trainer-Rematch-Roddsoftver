@@ -973,7 +973,8 @@ return function(mod)
           if not gen1TrainerStillHasStoryTalk(self, activeGame, d)
               and not trainerStillHasStoryTalk(self, activeGame, d)
               and not leaderStillHandingOver(self, activeGame, info.classId, d)
-              and (not scripted or hasDedicatedRematch or d.scriptKey or self.startTrainerScript) then
+              and (not scripted or hasDedicatedRematch or d.scriptKey or self.startTrainerScript
+                  or (not self.startTrainerScript and not d.scriptKey)) then
             return offerRematch(self, npc, activeGame, deps)
           end
         end
