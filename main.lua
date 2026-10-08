@@ -849,6 +849,24 @@ return function(mod)
     return nil
   end
 
+  -- Optional NG+ compatibility: the normal trainer.party difficulty scaler
+  -- preserves team size, but NG+ gym challenges have independent full rosters.
+  local function ngPlusGymTeam(classId)
+    local other = mod.find and mod.find("new_game_plus")
+    local e = other and other.exports
+    if not (e and type(e.isActive) == "function" and e.isActive()
+        and type(e.gyms) == "table" and type(e.challengeRoster) == "function") then
+      return nil
+    end
+    for _, challenge in ipairs(e.gyms) do
+      if normalizeClassId(challenge.trainerClass) == normalizeClassId(classId) then
+        local cycle = type(e.cycle) == "function" and e.cycle() or 1
+        return e.challengeRoster(challenge, cycle)
+      end
+    end
+    return nil
+  end
+
   local function offerRematch(self, npc, game, deps)
     deps = deps or {}
     local activeGame = resolveActiveGame(self, game, deps)
@@ -882,6 +900,8 @@ return function(mod)
       -- the trainer's own party when none is marked.
       local partyIndex = resolvePartyIndex(info and info.classRecord, info and info.partyIndex or d.trainerParty)
       local team = resolveParty(info and info.classRecord, partyIndex) or (info and info.team)
+      local ngTeam = not self.startTrainerScript and ngPlusGymTeam(classId) or nil
+      if ngTeam then team = ngTeam end
 
       local function battle()
         Runtime.emit("world.trainer_engaged", {
@@ -905,7 +925,23 @@ return function(mod)
           local header = activeGame and activeGame.data and activeGame.data.trainerHeader
               and activeGame.data:trainerHeader(self.map and self.map.def and self.map.def.label, d.index)
           local wonText = header and header.won and activeGame.data.text and activeGame.data.text[header.won]
-          local b = BattleState.newTrainer(activeGame, info and info.rawClass or d.trainerClass, partyIndex)
+          -- Scoped high-priority hook: override NG+'s already-scaled party
+          -- for this one physical Gym Leader rematch, then immediately detach.
+          local removeHook
+          if ngTeam and Runtime.hooks and Runtime.hooks.wrap then
+            removeHook = Runtime.hooks:wrap("trainer.party",
+              function(next, oppClass, index, party)
+                local out = next(oppClass, index, party)
+                if normalizeClassId(oppClass) == normalizeClassId(classId) then
+                  return ngTeam
+                end
+                return out
+              end, 10000, "trainer-rematch-roddsoft")
+          end
+          local okBattle, b = pcall(BattleState.newTrainer,
+            activeGame, info and info.rawClass or d.trainerClass, partyIndex)
+          if removeHook then removeHook() end
+          if not okBattle then unfreeze(); error(b) end
           b.rematch = true
           b.endBattleText = wonText and TextBox.substitute and TextBox.substitute(activeGame, wonText) or nil
           b.onFinish = function(result)
