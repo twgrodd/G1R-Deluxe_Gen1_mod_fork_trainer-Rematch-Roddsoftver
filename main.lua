@@ -1014,6 +1014,12 @@ return function(mod)
       Overworld.talkTo = function(self, npc)
         local d = npc and npc.def
         if not d then return vanillaTalkTo(self, npc) end
+        -- NG+ boss NPCs own their dialogue and battle lifecycle. Do not
+        -- classify them as vanilla defeated trainers based on their sprite.
+        if d.name == "NG_PLUS_BLUE_PRIME"
+            or d.text == "TEXT_NG_PLUS_BLUE_PRIME" then
+          return vanillaTalkTo(self, npc)
+        end
 
         local activeGame = resolveActiveGame(self, game, deps)
         local info = extractTrainerInfo(npc, activeGame, self)
