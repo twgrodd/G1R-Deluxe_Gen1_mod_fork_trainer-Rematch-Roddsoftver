@@ -1016,8 +1016,8 @@ return function(mod)
         if not d then return vanillaTalkTo(self, npc) end
         -- NG+ boss NPCs own their dialogue and battle lifecycle. Do not
         -- classify them as vanilla defeated trainers based on their sprite.
-        if d.name == "NG_PLUS_BLUE_PRIME"
-            or d.text == "TEXT_NG_PLUS_BLUE_PRIME" then
+        if (type(d.name) == "string" and d.name:sub(1, 8) == "NG_PLUS_")
+            or (type(d.text) == "string" and d.text:sub(1, 13) == "TEXT_NG_PLUS_") then
           return vanillaTalkTo(self, npc)
         end
 
