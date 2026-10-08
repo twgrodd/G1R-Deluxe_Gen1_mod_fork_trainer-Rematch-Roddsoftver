@@ -111,6 +111,12 @@ This integration currently selects NG+'s expanded **Gen 1 Gym Leader**
 rosters; it does not replace every field trainer with a six-Pokémon team.
 The combined behavior still needs in-game compatibility testing.
 
+### RoddSoft New Game Plus fork: shared Gym completion
+
+With [New Game Plus RoddSoft](https://github.com/twgrodd/G1R-Deluxe_Gen1_mod_fork_new-game-plus-Roddsoftver) installed and activated, **winning** a Gen 1 overworld Gym Leader rematch against the expanded NG+ roster also marks that Gym as **DONE** in the NG+ menu. Completing all eight Gym challenges through either route unlocks the optional NG+ bosses. The integration calls NG+'s `recordExternalVictory(game, challengeId)` API only after a confirmed victory.
+
+Overworld wins grant **progress only**, not NG+ menu-specific first-time money or items. Completing a Gym externally forfeits its first-win NG+ menu reward for the current cycle. Losing, declining, battling normal trainers, or playing without this NG+ fork does not record NG+ Gym progress. The upstream `new_game_plus` mod still supports expanded Gym rosters, but does not expose this victory API, so its menu progress remains separate.
+
 ## Try it
 
 1. Install the mod into your game's `mods/` folder (or drop the zip in via the launcher).
