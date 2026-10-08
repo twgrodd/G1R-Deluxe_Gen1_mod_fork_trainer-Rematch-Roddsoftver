@@ -16,7 +16,9 @@
     "engine_internals"
   ],
   "dependencies": [],
-  "optional_dependencies": [],
+  "optional_dependencies": [
+    "new_game_plus"
+  ],
   "conflicts": [],
   "incompatible": [],
   "experimental": false,
