@@ -2,6 +2,10 @@
 
 Talk to any trainer you have already beaten and they challenge you to a rematch, with a YES/NO prompt. Supports Generation 1 (Red/Blue/Yellow) and Generation 2 (Gold/Silver/Crystal).
 
+## NG+ Blue Prime crash fix (v0.5.14)
+
+Trainer Rematch now leaves the New Game Plus Roddsoft **Blue Prime** NPC (Route 22, 19,4) to its own dialogue and battle handler. Previously, the rematch interception could classify the new NPC as a defeated vanilla trainer and attempt to launch the invalid trainer class `BLUE`, crashing the game. Other trainers' rematch behavior is unchanged. Install this update **alongside** NG+ v1.0.6 or later. This fix has not yet been verified in a running game.
+
 ## About the RoddSoft fork
 
 **Trainer Rematch RoddSoft** is a maintained fork of the original Trainer
