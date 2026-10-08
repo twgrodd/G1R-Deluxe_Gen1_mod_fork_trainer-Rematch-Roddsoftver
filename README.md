@@ -25,6 +25,14 @@ progression.
 - **Dedicated rematch teams** -- trainer data can provide a `rematchIndex`,
   allowing compatible projects such as Yellow Legacy Changes to supply a
   purpose-built rematch team instead of simply replaying the original party.
+- **Optional New Game Plus compatibility** -- when
+  [New Game Plus](https://github.com/notquiteog/new_game_plus) is installed
+  and activated, Gen 1 Gym Leader rematches initiated by talking to the leader
+  use NG+'s full challenge roster (including additional Pokémon) at the
+  current NG+ cycle's levels, rather than only scaling the original party.
+  Other trainers continue using NG+'s normal difficulty scaling.
+  These overworld rematches do **not** award NG+ menu-challenge rewards or
+  mark those menu challenges as completed.
 - **Configurable rematch rewards** -- the MODS menu provides separate
   0-100% controls for prize money and EXP in 10% steps. Money defaults to 0%
   and EXP to 100%; Pay Day remains disabled during rematches.
@@ -76,6 +84,32 @@ For the detailed version-by-version history, see [CHANGELOG.md](CHANGELOG.md).
 If the rematch team averages **more than 10 levels above your party**, they warn you first in their own voice and ask again — say YES to battle anyway, or NO to walk away.
 
 Gym leaders, rivals and other scripted encounters keep their original conversations. A Gym Leader only starts offering rematches once they have nothing left to hand over: beating them in Gen 2 only sets the "beaten" flag, and the badge (and often their TM) comes from their own talk afterwards, so that talk is theirs until the badge and TM are in your hands. A class which marks a dedicated rematch team (a `rematchIndex` in its trainer record, like the Yellow Legacy Changes mod ships for the gym leaders, Elite Four and Champion) uses that team for the rematch instead of the trainer's own party.
+
+## New Game Plus integration (optional)
+
+This mod works independently of
+[New Game Plus](https://github.com/notquiteog/new_game_plus). If both are
+installed, **activate New Game Plus after defeating the Champion** to enable
+its increased difficulty. Once active:
+
+- **Gen 1 Gym Leaders:** talk to a previously defeated leader and choose YES
+  to battle their full NG+ Gym challenge team. For example, Brock uses six
+  Pokémon (Golem, Rhydon, Kabutops, Omastar, Aerodactyl and Onix), not just
+  his original two at higher levels. The NG+ cycle determines the team's
+  levels.
+- **Ordinary trainers:** NG+'s existing trainer-party hook continues to
+  strengthen their normal teams; it does not automatically add extra party
+  members.
+- **Rewards and progression:** an overworld rematch still follows Trainer
+  Rematch RoddSoft's money/EXP settings. It does not grant NG+'s separate
+  menu challenge rewards, record an NG+ Gym victory or unlock NG+ bosses.
+  Use the NG+ menu to progress through its challenge system.
+- **Without NG+:** rematches behave as before. NG+ is an optional
+  dependency, not required to install or use this mod.
+
+This integration currently selects NG+'s expanded **Gen 1 Gym Leader**
+rosters; it does not replace every field trainer with a six-Pokémon team.
+The combined behavior still needs in-game compatibility testing.
 
 ## Try it
 
