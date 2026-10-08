@@ -852,16 +852,20 @@ return function(mod)
   -- Optional NG+ compatibility: the normal trainer.party difficulty scaler
   -- preserves team size, but NG+ gym challenges have independent full rosters.
   local function ngPlusGymTeam(classId)
-    local other = mod.find and mod.find("new_game_plus")
-    local e = other and other.exports
-    if not (e and type(e.isActive) == "function" and e.isActive()
-        and type(e.gyms) == "table" and type(e.challengeRoster) == "function") then
-      return nil
-    end
-    for _, challenge in ipairs(e.gyms) do
-      if normalizeClassId(challenge.trainerClass) == normalizeClassId(classId) then
-        local cycle = type(e.cycle) == "function" and e.cycle() or 1
-        return e.challengeRoster(challenge, cycle)
+    -- The RoddSoft fork adds external victory tracking. Prefer it over the
+    -- upstream mod if both are installed, but keep upstream roster support.
+    for _, modId in ipairs({ "new-game-plus-roddsoft", "new_game_plus" }) do
+      local other = mod.find and mod.find(modId)
+      local e = other and other.exports
+      if e and type(e.isActive) == "function" and e.isActive()
+          and type(e.gyms) == "table"
+          and type(e.challengeRoster) == "function" then
+        for _, challenge in ipairs(e.gyms) do
+          if normalizeClassId(challenge.trainerClass) == normalizeClassId(classId) then
+            local cycle = type(e.cycle) == "function" and e.cycle() or 1
+            return e.challengeRoster(challenge, cycle), e, challenge.id
+          end
+        end
       end
     end
     return nil
@@ -900,7 +904,10 @@ return function(mod)
       -- the trainer's own party when none is marked.
       local partyIndex = resolvePartyIndex(info and info.classRecord, info and info.partyIndex or d.trainerParty)
       local team = resolveParty(info and info.classRecord, partyIndex) or (info and info.team)
-      local ngTeam = not self.startTrainerScript and ngPlusGymTeam(classId) or nil
+      local ngTeam, ngExports, ngChallengeId
+      if not self.startTrainerScript then
+        ngTeam, ngExports, ngChallengeId = ngPlusGymTeam(classId)
+      end
       if ngTeam then team = ngTeam end
 
       local function battle()
@@ -945,6 +952,18 @@ return function(mod)
           b.rematch = true
           b.endBattleText = wonText and TextBox.substitute and TextBox.substitute(activeGame, wonText) or nil
           b.onFinish = function(result)
+            -- Only the actual NG+ Gym roster and a confirmed win can count
+            -- toward the fork's challenge menu. Never block vanilla cleanup
+            -- if the optional compatibility API rejects or errors.
+            if result == "win" and ngTeam and ngChallengeId
+                and ngExports and type(ngExports.recordExternalVictory) == "function" then
+              local ok, outcome = pcall(ngExports.recordExternalVictory,
+                activeGame, ngChallengeId)
+              if not ok or not (type(outcome) == "table" and outcome.success) then
+                mod.log:warn("NG+ external Gym victory was not recorded: %s",
+                  tostring(ok and outcome and outcome.reason or outcome))
+              end
+            end
             if self.afterBattle then self:afterBattle(result, b) end
             unfreeze()
           end
